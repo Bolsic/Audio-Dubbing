@@ -1,5 +1,13 @@
 import os
 
+def print_translation_result(recognized_text_queue, translated_text_queue, done_event):
+    while not done_event.is_set():
+        if not recognized_text_queue.empty():
+            print(f"PRINT Recognized: {recognized_text_queue.get()}")
+        if not translated_text_queue.empty():
+            print(f"PRINT Translated: {translated_text_queue.get()}")
+
+
 def make_output_dir(input_path):
     # The output directory is /home/basic/Projects/Vavilon/Translated-Audio + the name of the input directory with "-Translated" appended
     input_dir = os.path.dirname(input_path)
@@ -21,7 +29,7 @@ def pick_source_language_interface():
     try:
         choice = int(input("Enter the number of the language: "))
         if 1 <= choice <= 6:
-            languages = ["en-US", "sr-Latn", "fr-FR", "de-DE", "ru-RU", "tr-TR"]
+            languages = ["en-US", "sr-RS", "fr-FR", "de-DE", "ru-RU", "tr-TR"]
             selected_language = languages[choice - 1]
             print(f"You have selected: {selected_language}\n\n")
         else:
