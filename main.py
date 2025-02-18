@@ -8,6 +8,7 @@ from azure.ai.translation.text import TextTranslationClient
 
 from audio_translator import translate_audio_file
 from auxiliary_functions import *
+from audio_synthesizer import voice_synth
 
 speech_key = os.environ.get('SPEECH_KEY')
 speech_region = os.environ.get('SPEECH_REGION')
@@ -27,6 +28,9 @@ if __name__ == "__main__":
     # Select the language to translate to
     target_language = pick_target_language_interface()
 
+    # Select the voice to use for the translation
+    voice_name = pick_voice_interface(target_language, speech_key, speech_region)
+
     # Measure time elapsed
     start = time.time()
 
@@ -45,15 +49,16 @@ if __name__ == "__main__":
                                         args=(audio_file_path, target_language, speech_key, speech_region, 
                                                 source_language, recognised_text_queue, translated_text_queue, done_event)
                                         )
-    print_thread = threading.Thread(target=print_translation_result,
-                                    args=(recognised_text_queue, translated_text_queue, done_event)
-                                    )
+   
+    synthesizer_thread = threading.Thread(target=voice_synth,
+                                        args=(translated_text_queue, speech_key, speech_region, voice_name, done_event)
+                                        )
     
     translate_thread.start()
-    print_thread.start()
+    synthesizer_thread.start()
 
     translate_thread.join()
-    print_thread.join()
+    synthesizer_thread.join()
 
     print("Translation complete.")
     # Measure time elapsed
