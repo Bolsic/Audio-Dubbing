@@ -1,4 +1,5 @@
 import os
+import azure.cognitiveservices.speech as speechsdk
 
 def print_translation_result(recognized_text_queue, translated_text_queue, done_event):
     while not done_event.is_set():
@@ -82,3 +83,47 @@ def pick_file_interface(dir):
     print(f"Output path: {output_path}\n\n")
 
     return audio_file_path, output_path
+
+
+def pick_voice_interface(language_code, speech_key, speech_region):
+    
+    # Create a SpeechConfig for synthesis and set the synthesis language filter.
+    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
+    # Setting the speech_synthesis_language helps limit the voices returned.
+    speech_config.speech_synthesis_language = language_code
+
+    # Create a synthesizer without audio output to fetch voice list.
+    synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
+    
+    # Retrieve available voices
+    voices_result = synthesizer.get_voices_async().get()
+    all_voices = voices_result.voices
+
+    # Filter voices: only those whose locale starts with the provided language code.
+    filtered_voices = [v for v in all_voices if v.locale.lower().startswith(language_code.lower())]
+
+    if not filtered_voices:
+        print(f"No voices available for language code '{language_code}'.")
+        return None
+
+    print(f"Available voices for language '{language_code}':")
+    for idx, voice in enumerate(filtered_voices):
+        # Extract the short voice name by removing the locale and hyphen.
+        # Example: if voice.name is "en-US-AmberNeural" and voice.locale is "en-US",
+        # then short_name becomes "AmberNeural".
+        prefix = voice.locale + "-"
+        short_name = voice.name[len(prefix):] if voice.name.startswith(prefix) else voice.name
+        print(f"[{idx}] {voice.locale}, {short_name}")
+
+    # Prompt user until a valid number is entered.
+    while True:
+        try:
+            selection = int(input("Enter the number corresponding to your chosen voice: "))
+            if 0 <= selection < len(filtered_voices):
+                chosen_voice = filtered_voices[selection].name
+                print(f"You selected: {filtered_voices[selection].locale}, {filtered_voices[selection].name[len(filtered_voices[selection].locale)+1:]}")
+                return chosen_voice
+            else:
+                print(f"Invalid selection. Please enter a number between 0 and {len(filtered_voices)-1}.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
