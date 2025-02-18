@@ -86,7 +86,7 @@ def pick_file_interface(dir):
 
 
 def pick_voice_interface(language_code, speech_key, speech_region):
-    
+
     # Create a SpeechConfig for synthesis and set the synthesis language filter.
     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
     # Setting the speech_synthesis_language helps limit the voices returned.
@@ -127,3 +127,31 @@ def pick_voice_interface(language_code, speech_key, speech_region):
                 print(f"Invalid selection. Please enter a number between 0 and {len(filtered_voices)-1}.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
+
+
+def pick_mode_interface(directory_path):
+    # Pick between live mode and file mode 
+    print("Select the mode:")
+    print("1. Live mode")
+    print("2. File mode")
+
+    try:
+        choice = int(input("Enter the number of the mode: "))
+        if choice == 1:
+            mode = "live"
+        elif choice == 2:
+            mode = "file"
+        else:
+            print("Invalid selection. Please run the program again and choose a valid number.")
+    except ValueError:
+        print("Invalid input. Please enter a number corresponding to the mode.")
+
+    print(f"\nYou have selected: {mode} mode\n\n")
+
+    if mode == "file":
+        audio_file_path, output_path = pick_file_interface(directory_path)
+    else:
+        audio_file_path = None
+        output_path = None
+    
+    return mode, audio_file_path, output_path
