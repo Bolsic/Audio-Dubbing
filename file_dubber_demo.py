@@ -4,11 +4,10 @@ import azure.cognitiveservices.speech as speechsdk
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.translation.text import TextTranslationClient
 
-speech_key = "8DWayvEHZerwdy1oXOhSMJRQJ2ic0boQIkoVo6BhVwbHMDGRnLiiJQQJ99BBAC5RqLJXJ3w3AAAYACOGKpnv"
-service_region = "westeurope"
-translator_key = "8uzkNOPtkQURJWrm2Zxih0R0NpHJ36rXNoVUG9226ZJ2Yx6pMcLSJQQJ99BBAC5RqLJXJ3w3AAAbACOGpome"
-translator_region = "westeurope"
-translator_endpoint = "https://api.cognitive.microsofttranslator.com"
+speech_key = os.environ.get('SPEECH_KEY')
+speech_region = os.environ.get('SPEECH_REGION')
+translator_key = os.environ.get('TRANSLATOR_KEY')
+translator_region = os.environ.get('TRANSLATOR_REGION')
 
 def make_output_dir(input_path):
     # The output directory is /home/basic/Projects/Vavilon/Translated-Audio + the name of the input directory with "-Translated" appended
@@ -23,7 +22,7 @@ def make_output_dir(input_path):
 
 def transcribe_audio(file_path):
 
-    if not speech_key or not service_region:
+    if not speech_key or not speech_region:
         print("Environment variables for Azure Speech service are not set.")
         return
 
@@ -130,7 +129,7 @@ def translate_text(input_text, source_language, target_language):
 
 def synthesize_voice(input_text, language, output_path):
     
-    if not speech_key or not service_region:
+    if not speech_key or not speech_region:
         raise ValueError("Azure Speech service key and region must be set as environment variables.")
 
     speech_config.speech_synthesis_language = language
@@ -218,7 +217,7 @@ if __name__ == "__main__":
     selected_language = pick_language_interface()
 
     # Set up the speech configuration
-    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
 
     #Measure time elapsed
     start = time.time()
