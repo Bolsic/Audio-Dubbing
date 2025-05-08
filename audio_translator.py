@@ -17,10 +17,12 @@ def translate_audio_file(audio_file_path, target_language, speech_key, speech_re
     # Specify audio input from file
     audio_config = speechsdk.audio.AudioConfig(filename=audio_file_path)
 
+    translation_config.set_property(speechsdk.PropertyId.Speech_SegmentationSilenceTimeoutMs, "200")
+
     # Create the TranslationRecognizer for continuous recognition
     recognizer = speechsdk.translation.TranslationRecognizer(
         translation_config=translation_config, audio_config=audio_config)
-
+    #recognizer.set_property(speechsdk.PropertyId.Speech_SegmentationStrategy, "Semantic")
     
     is_recognised_queue = True
     is_translated_queue = True
@@ -105,12 +107,15 @@ def translate_live_audio(speech_key, speech_region, source_language, target_lang
     translation_config.speech_recognition_language = source_language
     translation_config.add_target_language(target_language)
 
+
     # Use the default microphone for audio input.
     try:
         audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
     except AttributeError:
         raise AttributeError("AudioConfig.from_default_microphone_input() not found. "
                              "Please upgrade your azure-cognitiveservices-speech package (pip install --upgrade azure-cognitiveservices-speech).")
+
+    translation_config.set_property(speechsdk.PropertyId.Speech_SegmentationSilenceTimeoutMs, "100")
 
     # Create a TranslationRecognizer for continuous recognition.
     recognizer = speechsdk.translation.TranslationRecognizer(
